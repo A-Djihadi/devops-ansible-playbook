@@ -1,0 +1,17 @@
+---
+# Variables communes à tous les groupes
+
+app_user: appuser
+app_group: appuser
+app_dir: /opt/myapp
+
+# Timezone du serveur
+server_timezone: Europe/Paris
+
+# Paquets système à installer sur tous les hôtes
+common_packages:
+  - curl
+  - git
+  - htop
+  - unzip
+  - ca-certificates

@@ -1,0 +1,32 @@
+---
+- name: Mise à jour du cache APT
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  changed_when: false
+
+- name: Installation des paquets système communs
+  ansible.builtin.apt:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Configuration de la timezone
+  community.general.timezone:
+    name: "{{ server_timezone }}"
+  notify: restart cron
+
+- name: Création de l'utilisateur applicatif
+  ansible.builtin.user:
+    name: "{{ app_user }}"
+    group: "{{ app_group }}"
+    system: true
+    shell: /sbin/nologin
+    create_home: false
+
+- name: Création du répertoire applicatif
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: "0755"

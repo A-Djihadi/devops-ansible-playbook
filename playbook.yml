@@ -1,0 +1,25 @@
+---
+# Playbook principal — provision + déploiement
+#
+# Usage :
+#   ansible-playbook -i inventory/hosts.yml playbook.yml
+#   ansible-playbook -i inventory/hosts.yml playbook.yml --ask-vault-pass
+#   ansible-playbook -i inventory/hosts.yml playbook.yml --tags deploy
+
+- name: Provisioning et déploiement des webservers
+  hosts: webservers
+  become: true
+
+  vars_files:
+    # Décommenter une fois le vault créé :
+    # - vault/secrets.yml
+
+  roles:
+    - role: common
+      tags: [common, provision]
+
+    - role: docker
+      tags: [docker, provision]
+
+    - role: app-deploy
+      tags: [deploy]
