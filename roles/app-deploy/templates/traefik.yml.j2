@@ -1,0 +1,17 @@
+# Traefik v3 — configuration statique (générée par Ansible, ne pas éditer manuellement).
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: devops-network
+
+# TLS (Let's Encrypt) volontairement absent de cette configuration minimale.
+# Une fois un vrai domaine et le DNS en place, ajouter un bloc
+# `certificatesResolvers` et basculer les routeurs sur l'entrypoint `websecure`.

@@ -3,7 +3,11 @@
 
 app_user: appuser
 app_group: appuser
-app_dir: /opt/myapp
+app_dir: /opt/devops-app
+
+# Registry GHCR
+ghcr_registry: ghcr.io
+ghcr_owner: a-djihadi
 
 # Timezone du serveur
 server_timezone: Europe/Paris
@@ -15,3 +19,4 @@ common_packages:
   - htop
   - unzip
   - ca-certificates
+  - ufw

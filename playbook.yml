@@ -3,7 +3,8 @@
 #
 # Usage :
 #   ansible-playbook -i inventory/hosts.yml playbook.yml
-#   ansible-playbook -i inventory/hosts.yml playbook.yml --ask-vault-pass
+#   ansible-playbook -i inventories/production/hosts.ini playbook.yml --ask-vault-pass
+#   ansible-playbook -i inventories/staging/hosts.ini playbook.yml --ask-vault-pass
 #   ansible-playbook -i inventory/hosts.yml playbook.yml --tags deploy
 
 - name: Provisioning et déploiement des webservers

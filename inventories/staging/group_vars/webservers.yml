@@ -1,0 +1,4 @@
+---
+# Surcharges spécifiques à l'environnement staging
+app_env: staging
+spring_profile: staging

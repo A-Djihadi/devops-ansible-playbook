@@ -1,8 +1,0 @@
----
-# Variables spécifiques aux webservers
-
-app_port: 8080
-app_image_tag: latest
-
-# Référence au secret chiffré dans vault/secrets.yml
-# app_registry_token: "{{ vault_registry_token }}"
