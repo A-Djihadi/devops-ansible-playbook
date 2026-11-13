@@ -1,4 +1,20 @@
 ---
+- name: Création du répertoire de déploiement
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: "0755"
+
+- name: Création du répertoire de configuration Traefik
+  ansible.builtin.file:
+    path: "{{ app_dir }}/traefik"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: "0755"
+
 - name: Copie du docker-compose depuis le template Jinja2
   ansible.builtin.template:
     src: docker-compose.yml.j2
@@ -8,11 +24,44 @@
     mode: "0644"
   notify: restart app
 
-- name: Pull des images Docker
-  community.docker.docker_compose_v2:
-    project_src: "{{ app_dir }}"
-    pull: always
-    state: absent   # Pull sans démarrer
+- name: Copie du fichier .env
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ app_dir }}/.env"
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: "0600"
+  notify: restart app
+
+- name: Copie de la configuration Traefik
+  ansible.builtin.template:
+    src: traefik.yml.j2
+    dest: "{{ app_dir }}/traefik/traefik.yml"
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: "0644"
+  notify: restart app
+
+- name: Login au registry GHCR
+  community.docker.docker_login:
+    registry_url: "{{ ghcr_registry }}"
+    username: "{{ ghcr_owner }}"
+    password: "{{ vault_registry_token }}"
+  no_log: true
+
+- name: Pull des images Docker (sans démarrer la stack)
+  community.docker.docker_image:
+    name: "{{ ghcr_registry }}/{{ ghcr_owner }}/{{ item.name }}:{{ item.tag }}"
+    source: pull
+  loop:
+    - name: devops-spring-app
+      tag: "{{ api_image_tag }}"
+    - name: devops-angular-shell
+      tag: "{{ shell_image_tag }}"
+    - name: devops-angular-remote
+      tag: "{{ remote_image_tag }}"
+  loop_control:
+    label: "{{ item.name }}:{{ item.tag }}"
 
 - name: Déploiement de la stack
   community.docker.docker_compose_v2:

@@ -1,0 +1,4 @@
+---
+# Surcharges spécifiques à l'environnement production
+app_env: production
+spring_profile: production

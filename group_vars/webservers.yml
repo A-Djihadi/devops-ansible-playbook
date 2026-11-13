@@ -1,0 +1,21 @@
+---
+# Variables spécifiques aux webservers
+# Les valeurs d'environnement sont surchargées par les group_vars d'inventaire
+# (inventories/{production,staging}/group_vars/webservers.yml).
+
+# Environnement applicatif (surchargé par l'inventaire)
+app_env: production
+spring_profile: production
+
+# Domaine public utilisé par Traefik et par les URLs de l'application
+domain: devops.example.com
+
+# Tags des images Docker publiées sur GHCR
+api_image_tag: latest
+shell_image_tag: latest
+remote_image_tag: latest
+
+# Ports internes des conteneurs (utilisés par Traefik pour le routage)
+api_port: 8080
+shell_port: 80
+remote_port: 80

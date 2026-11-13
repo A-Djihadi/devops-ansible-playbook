@@ -1,16 +1,60 @@
 version: "3.9"
-# Généré par Ansible — ne pas éditer manuellement sur le serveur
+# Généré par Ansible — ne pas éditer manuellement sur le serveur.
 
 services:
-  app:
-    image: ghcr.io/a-djihadi/myapp:{{ app_image_tag | default('latest') }}
-    container_name: myapp
-    ports:
-      - "{{ app_port }}:8080"
+  api:
+    image: {{ ghcr_registry }}/{{ ghcr_owner }}/devops-spring-app:{{ api_image_tag }}
+    container_name: devops-api
+    env_file: .env
     restart: unless-stopped
-    environment:
-      APP_ENV: production
+    networks:
+      - devops-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.{{ domain }}`)"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.services.api.loadbalancer.server.port={{ api_port }}"
+
+  shell:
+    image: {{ ghcr_registry }}/{{ ghcr_owner }}/devops-angular-shell:{{ shell_image_tag }}
+    container_name: angular-shell
+    env_file: .env
+    restart: unless-stopped
+    depends_on:
+      - api
+    networks:
+      - devops-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.shell.rule=Host(`{{ domain }}`)"
+      - "traefik.http.routers.shell.entrypoints=web"
+      - "traefik.http.services.shell.loadbalancer.server.port={{ shell_port }}"
+
+  remote:
+    image: {{ ghcr_registry }}/{{ ghcr_owner }}/devops-angular-remote:{{ remote_image_tag }}
+    container_name: angular-remote
+    restart: unless-stopped
+    networks:
+      - devops-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.remote.rule=Host(`remote.{{ domain }}`)"
+      - "traefik.http.routers.remote.entrypoints=web"
+      - "traefik.http.services.remote.loadbalancer.server.port={{ remote_port }}"
+
+  proxy:
+    image: traefik:v3.0
+    container_name: traefik
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik:/etc/traefik
+    restart: unless-stopped
+    networks:
+      - devops-network
 
 networks:
-  default:
-    name: myapp-network
+  devops-network:
+    name: devops-network
